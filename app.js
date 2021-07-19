@@ -1,25 +1,25 @@
 const express = require("express");
 const bodyParser = require("body-parser");
-
+const port = 3000;
 const app = express();
-
 app.use(bodyParser.urlencoded({extended:true}));
+app.use(express.static("public"));
 app.set("view engine", "ejs");
 
-var tasks = ["Buy food", "Study", "Workout"];
+let tasks = ["Buy food", "Study", "Workout"];
 
 app.get("/", function(req, res){
-  var today = new Date();
-  
+  let today = new Date();
+
   // options object to use for day formatting
-  var options = {
+  let options = {
     weekday: "long",
     day: "numeric",
     month: "long"
   };
 
   // format day to get the correspondant string
-  var day = today.toLocaleDateString("en-US", options);
+  let day = today.toLocaleDateString("en-US", options);
 
   // passing back parameter day to front EJS parameter kindOfDay
   res.render("list", {
@@ -35,6 +35,6 @@ app.post("/", function(req, res){
   res.redirect("/");
 })
 
-app.listen(3000, function(){
+app.listen(const, function(){
   console.log("Server started on port 3000.");
 });
