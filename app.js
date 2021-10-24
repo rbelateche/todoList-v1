@@ -10,7 +10,7 @@ app.set("view engine", "ejs");
 // connect to database
 mongoose.connect("mongodb://localhost:27017/todolistDB");
 
-// create a new Items
+// create a new Item Schema
 const ItemsSchema = {
   name: String
 };
@@ -36,10 +36,21 @@ const defaultItems = [task1, task2, task3];
 
 
 
+// creating a new List Schema
+const listSchema = {
+  name : String,
+  items: [ItemsSchema]
+};
+
+// Creating Mongoose Model
+const List = mongoose.model("List", listSchema);
+
 
 
 
 // GET request, with date process
+// GET : request data from database,
+// and passing arguments to front
 app.get("/", function(req, res){
   let today = new Date();
 
@@ -74,15 +85,40 @@ app.get("/", function(req, res){
       newListItems: foundItems
     });
   })
-
-  // passing back parameter day to front EJS parameter kindOfDay
-
 });
 
-app.post("/", function(req, res){
 
-  // redirect to the home route to trigger to app.get
-  // task has to be a global variable in order to use it in app.get
+
+// EXPRESS Routing
+app.get("/:customListName", function(req, res){
+  const customListName = req.params.customListName;
+  List.findOne({name: customListName}, function(err, foundList){
+    if (!err){
+      if (!foundList){
+        // if list doesn't exist, then create one
+        const list = new List({
+          name: customListName,
+          items: defaultItems
+        })
+        list.save();
+        res.redirect("/" + customListName);
+      } else {
+        // if list already exists, then display the list
+          res.render("list", {
+          listTitle: foundList.name,
+          newListItems: foundList.items
+        })
+      }
+    }
+  })
+})
+
+
+
+
+// POST : send data to server/database
+// after getting changes from front
+app.post("/", function(req, res){
   const itemName = req.body.newItem;
 
   const newTask = new Item ({
@@ -94,9 +130,22 @@ app.post("/", function(req, res){
   res.redirect("/");
 })
 
+
 app.post("/delete", function(req, res){
-  
+  const checkedItemId = req.body.checkbox;
+  Item.findByIdAndRemove(checkedItemId, function(err){
+    if (err){
+      console.log(err);
+    } else {
+      console.log("item removed");
+    }
+  })
+  res.redirect("/");
 })
+
+
+app.get
+
 
 app.listen(port, function(){
   console.log("Server started on port 3000.");
