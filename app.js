@@ -1,6 +1,7 @@
 const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+const _ = require("lodash");
 const port = 3000;
 const app = express();
 app.use(bodyParser.urlencoded({extended:true}));
@@ -91,7 +92,7 @@ app.get("/", function(req, res){
 
 // EXPRESS Routing
 app.get("/:customListName", function(req, res){
-  const customListName = req.params.customListName;
+  const customListName = _.capitalize(req.params.customListName);
   List.findOne({name: customListName}, function(err, foundList){
     if (!err){
       if (!foundList){
