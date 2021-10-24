@@ -81,7 +81,7 @@ app.get("/", function(req, res){
     }
     console.log(foundItems);
     res.render("list", {
-      listTitle: day,
+      listTitle: "Today",
       newListItems: foundItems
     });
   })
@@ -107,11 +107,11 @@ app.get("/:customListName", function(req, res){
           res.render("list", {
           listTitle: foundList.name,
           newListItems: foundList.items
-        })
+        });
       }
     }
-  })
-})
+  });
+});
 
 
 
@@ -121,30 +121,68 @@ app.get("/:customListName", function(req, res){
 app.post("/", function(req, res){
   const itemName = req.body.newItem;
 
+  const listName = req.body.list;
+  console.log(listName);
+
   const newTask = new Item ({
     name: itemName
   });
 
-  newTask.save();
 
-  res.redirect("/");
-})
+
+  // check if title is : today, or actual list
+
+  if (listName === "Today"){
+    newTask.save();
+    res.redirect("/");
+  } else {
+    // list model already exist , so we just push the item to items array of the List model
+    List.findOne({name: listName}, function(err, returnedList){
+      returnedList.items.push(newTask);
+      returnedList.save();
+      console.log(returnedList);
+      res.redirect("/" + listName);
+
+    });
+  }
+
+
+
+});
 
 
 app.post("/delete", function(req, res){
   const checkedItemId = req.body.checkbox;
-  Item.findByIdAndRemove(checkedItemId, function(err){
-    if (err){
-      console.log(err);
-    } else {
-      console.log("item removed");
-    }
-  })
-  res.redirect("/");
-})
+  const listOfItems = req.body.listName;
+  console.log("listOfItems : " + listOfItems);
 
+  if (listOfItems === "Today"){
+    // remove item from items
+    Item.findByIdAndRemove(checkedItemId, function(err){
+      if (err){
+        console.log(err);
+      } else {
+        console.log("item removed");
+        res.redirect("/");
+      }
+    });
+  } else {
+    // remove item from its list
+    // find the list
+    // look for the item in the list by its id, then delete it
+    List.findOneAndUpdate(
+      {name: listOfItems},
+      { $pull : {items : {_id : checkedItemId}}},
+      function(err, foundList){
+        if (!err){
+          console.log(foundList);
+          res.redirect("/" + listOfItems);
+        }
+      }
+    );
+  }
 
-app.get
+});
 
 
 app.listen(port, function(){
