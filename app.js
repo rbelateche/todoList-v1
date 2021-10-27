@@ -2,7 +2,6 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const _ = require("lodash");
-const port = 3000;
 const app = express();
 app.use(bodyParser.urlencoded({extended:true}));
 app.use(express.static("public"));
@@ -190,7 +189,13 @@ app.post("/delete", function(req, res){
 
 });
 
+//To avoid having to set the PORT environment variable when running on local machine :
+let port = process.env.PORT;
+if (port == null || port == "") {
+  port = 3000;
+}
+
 
 app.listen(port, function(){
-  console.log("Server started on port 3000.");
+  console.log("Server started with success");
 });
