@@ -8,8 +8,13 @@ app.use(bodyParser.urlencoded({extended:true}));
 app.use(express.static("public"));
 app.set("view engine", "ejs");
 
-// connect to database
-mongoose.connect("mongodb://localhost:27017/todolistDB");
+// connect to local database
+//mongoose.connect("mongodb://localhost:27017/todolistDB", {useNewUrlParser: true});
+
+// connect to remote MongoDB Atlas Cluster's database
+// replace <password> by password of afmin-rbelateche
+// delete where it puts the default databse instead of todolistDB
+mongoose.connect("mongodb+srv://admin-rbelateche:CFH2Ay9ER4e3z3g@cluster0.y8wbf.mongodb.net/todolistDB", {useNewUrlParser: true});
 
 // create a new Item Schema
 const ItemsSchema = {
